@@ -1,0 +1,12 @@
+name: Notify Telegram
+on: [push]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification
+        run: |
+          curl -X POST "https://functions.yandexcloud.net/d4ejbcigksock5q4vd9s" \
+            -H "Content-Type: application/json" \
+            -d '{"text": "🔔 Новый пуш в ${{ github.repository }}: ${{ github.event.head_commit.message }}"}'
