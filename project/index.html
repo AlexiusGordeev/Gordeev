@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo App</title>
+</head>
+<body>
+
+<h1>Todo</h1>
+
+<input id="taskInput" placeholder="Новая задача" />
+<button onclick="addTask()">Добавить</button>
+
+<ul id="taskList"></ul>
+
+<script>
+const API = 'http://localhost:3000/tasks';
+
+async function loadTasks() {
+  const res = await fetch(API);
+  const tasks = await res.json();
+
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+
+  tasks.forEach(task => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <input value="${task.title}" id="input-${task.id}" />
+      <button onclick="updateTask(${task.id})">💾</button>
+      <button onclick="deleteTask(${task.id})">❌</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+async function addTask() {
+  const input = document.getElementById('taskInput');
+
+  await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: input.value })
+  });
+
+  input.value = '';
+  loadTasks();
+}
+
+async function deleteTask(id) {
+  await fetch(API + '/' + id, {
+    method: 'DELETE'
+  });
+
+  loadTasks();
+}
+
+loadTasks();
+</script>
+
+</body>
+</html>
