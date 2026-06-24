@@ -1,6 +1,6 @@
+const cors = require('cors');
 const express = require('express');
 const pool = require('./db');
-const cors = require('cors');
 
 const app = express();
 
@@ -41,17 +41,16 @@ app.delete('/tasks/:id', async (req, res) => {
 app.put('/tasks/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title } = req.body;
+    const { title, completed } = req.body;
 
     const updatedTask = await pool.query(
-      'UPDATE tasks SET title = $1 WHERE id = $2 RETURNING *',
-      [title, id]
+      'UPDATE tasks SET title = $1, completed = $2 WHERE id = $3 RETURNING *',
+      [title, completed, id]
     );
 
     res.json(updatedTask.rows[0]);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Ошибка сервера');
   }
 });
 
@@ -59,13 +58,31 @@ app.listen(3000, () => {
   console.log('Backend: http://localhost:3000');
 });
 
+async function toggleTask(id, completed) {
+  const input = document.getElementById(`input-${id}`);
+
+  await fetch(API + '/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: input.value,
+      completed: completed
+    })
+  });
+
+  loadTasks();
+}
+
 async function updateTask(id) {
   const input = document.getElementById(`input-${id}`);
 
   await fetch(API + '/' + id, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title: input.value })
+    body: JSON.stringify({
+      title: input.value,
+      completed: false
+    })
   });
 
   loadTasks();

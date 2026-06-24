@@ -23,12 +23,18 @@ async function loadTasks() {
   list.innerHTML = '';
 
   tasks.forEach(task => {
-    const li = document.createElement('li');
-    li.innerHTML = `
+  const li = document.createElement('li');
+
+  li.innerHTML = `
+      <input type="checkbox" ${task.completed ? 'checked' : ''} 
+        onchange="toggleTask(${task.id}, this.checked)" />
+
       <input value="${task.title}" id="input-${task.id}" />
+
       <button onclick="updateTask(${task.id})">💾</button>
       <button onclick="deleteTask(${task.id})">❌</button>
     `;
+
     list.appendChild(li);
   });
 }
@@ -49,6 +55,39 @@ async function addTask() {
 async function deleteTask(id) {
   await fetch(API + '/' + id, {
     method: 'DELETE'
+  });
+
+  loadTasks();
+}
+
+async function toggleTask(id, completed) {
+  const input = document.getElementById(`input-${id}`);
+
+  await fetch(API + '/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: input.value,
+      completed: completed
+    })
+  });
+
+  loadTasks();
+}
+
+async function updateTask(id) {
+  const input = document.getElementById(`input-${id}`);
+
+  // ⚠️ важно — берем текущее состояние чекбокса
+  const checkbox = input.previousElementSibling;
+
+  await fetch(API + '/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: input.value,
+      completed: checkbox.checked
+    })
   });
 
   loadTasks();
