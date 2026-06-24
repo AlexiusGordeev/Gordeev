@@ -76,6 +76,16 @@ app.post('/login', async (req, res) => {
 app.post('/tasks', auth, async (req, res) => {
   const { title } = req.body;
 
+  const user = await pool.query(
+    'SELECT * FROM users WHERE email = $1',
+    [email]
+  );
+
+  if (user.rows.length > 0) {
+    return res.status(400).json({ error: 'Пользователь уже существует' });
+  
+  }
+
   const newTask = await pool.query(
     'INSERT INTO tasks (title, user_id) VALUES ($1, $2) RETURNING *',
     [title, req.userId]
