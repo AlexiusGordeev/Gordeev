@@ -72,14 +72,6 @@ app.post('/login', async (req, res) => {
   res.json({ token });
 });
 
-app.get('/tasks', auth, async (req, res) => {
-  const tasks = await pool.query(
-    'SELECT * FROM tasks WHERE user_id = $1',
-    [req.userId]
-  );
-  res.json(tasks.rows);
-});
-
 // добавить задачу
 app.post('/tasks', auth, async (req, res) => {
   const { title } = req.body;
@@ -120,42 +112,6 @@ app.put('/tasks/:id', auth, async (req, res) => {
 app.listen(3000, () => {
   console.log('Backend: http://localhost:3000');
 });
-
-async function toggleTask(id, completed) {
-  const input = document.getElementById(`input-${id}`);
-
-  await fetch(API + '/' + id, {
-    method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': TOKEN
-      },
-    body: JSON.stringify({
-      title: input.value,
-      completed: completed
-    })
-  });
-
-  loadTasks();
-}
-
-async function updateTask(id) {
-  const input = document.getElementById(`input-${id}`);
-
-  await fetch(API + '/' + id, {
-    method: 'PUT',
-    headers: {
-         'Content-Type': 'application/json',
-         'Authorization': TOKEN
-       },
-    body: JSON.stringify({
-      title: input.value,
-      completed: false
-    })
-  });
-
-  loadTasks();
-}
 
 function auth(req, res, next) {
   const token = req.headers.authorization;

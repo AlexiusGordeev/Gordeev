@@ -68,9 +68,8 @@ async function addTask() {
 
 async function deleteTask(id) {
   await fetch(API + '/' + id, {
-    method: 'DELETE'
+    method: 'DELETE',
     headers: {
-      'Content-Type': 'application/json',
       'Authorization': TOKEN
     }
   });
