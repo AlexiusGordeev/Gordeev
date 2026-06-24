@@ -14,10 +14,21 @@
 
 <script>
 const API = 'http://localhost:3000/tasks';
+const TOKEN = '12345';
 
 async function loadTasks() {
-  const res = await fetch(API);
+  const res = await fetch(API, {
+    headers: {
+        Authorization: TOKEN
+    } 
+  });
+  
   const tasks = await res.json();
+
+  if (!Array.isArray(tasks)) {
+    console.error('Ошибка от сервера:', tasks);
+    return;
+ }
 
   const list = document.getElementById('taskList');
   list.innerHTML = '';
@@ -44,7 +55,10 @@ async function addTask() {
 
   await fetch(API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': TOKEN
+    },
     body: JSON.stringify({ title: input.value })
   });
 
@@ -55,6 +69,10 @@ async function addTask() {
 async function deleteTask(id) {
   await fetch(API + '/' + id, {
     method: 'DELETE'
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': TOKEN
+    }
   });
 
   loadTasks();
@@ -65,7 +83,10 @@ async function toggleTask(id, completed) {
 
   await fetch(API + '/' + id, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': TOKEN
+    },
     body: JSON.stringify({
       title: input.value,
       completed: completed
@@ -83,7 +104,10 @@ async function updateTask(id) {
 
   await fetch(API + '/' + id, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': TOKEN
+   },
     body: JSON.stringify({
       title: input.value,
       completed: checkbox.checked
